@@ -1,0 +1,95 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.TrainFragment">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_axis"
+                style="@style/AxisValue"
+                android:text="X-Axis"
+                />
+
+            <TextView
+                android:id="@+id/tv_xValue"
+                style="@style/AxisValue"
+                android:text="VALUE"
+                />
+
+            <TextView
+                android:id="@+id/y_axis"
+                style="@style/AxisValue"
+                android:text="Y-Axis"
+                />
+
+            <TextView
+                android:id="@+id/tv_yValue"
+                style="@style/AxisValue"
+                android:text="VALUE"
+                />
+
+            <TextView
+                android:id="@+id/z_axis"
+                style="@style/AxisValue"
+                android:text="Z-Axis" />
+
+            <TextView
+                android:id="@+id/tv_zValue"
+                style="@style/AxisValue"/>
+
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_trainStatus"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:text="TRAIN STATUS"
+            android:textSize="26dp"
+            android:gravity="center"
+            android:textColor="@android:color/holo_green_light"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnStart"
+            style="@style/MyButton"
+            android:text="@string/btn_start"/>
+
+        <Button
+            android:id="@+id/btnStop"
+            style="@style/MyButton"
+            android:text="@string/btn_stop"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/MyProgressBar"/>
+
+</FrameLayout>

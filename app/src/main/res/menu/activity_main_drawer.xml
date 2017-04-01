@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_train"
+            android:icon="@mipmap/ic_fitness_center_black_24dp"
+            android:title="Train Machine Learning" />
+        <item
+            android:id="@+id/nav_test"
+            android:icon="@mipmap/ic_play_circle_filled_black_24dp"
+            android:title="What are you doing?" />
+    </group>
+
+</menu>
