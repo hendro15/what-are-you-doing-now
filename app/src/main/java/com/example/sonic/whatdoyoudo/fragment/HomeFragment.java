@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import com.example.sonic.whatdoyoudo.MainActivity;
 import com.example.sonic.whatdoyoudo.R;
 import com.example.sonic.whatdoyoudo.commons.CommonFunctions;
+import com.example.sonic.whatdoyoudo.commons.Dialog;
 import com.example.sonic.whatdoyoudo.commons.GridSpacingItemDecoration;
 import com.example.sonic.whatdoyoudo.commons.RecyclerViewClickListener;
 import com.example.sonic.whatdoyoudo.commons.RecyclerViewTouchListener;
@@ -31,6 +32,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import static com.example.sonic.whatdoyoudo.R.id.content_layout;
 import static com.example.sonic.whatdoyoudo.R.id.rv_menu;
 
 /**
@@ -86,11 +88,11 @@ public class HomeFragment extends Fragment {
 
     @Bind(R.id.rv_menu)
     RecyclerView rv_menu;
-    AlertDialog.Builder builder;
 
     MainActivity activity;
     List<MenuElement> menuElementList;
     MenuAdapter menuAdapter;
+    Dialog dialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -105,6 +107,7 @@ public class HomeFragment extends Fragment {
 
     public void setLayout() {
         getActivity().setTitle("Smart Detector");
+        dialog = new Dialog(getActivity());
         menuElementList = new ArrayList<>();
         getData();
         menuAdapter = new MenuAdapter(getContext(), menuElementList);
@@ -128,6 +131,9 @@ public class HomeFragment extends Fragment {
                         newFragment = new TestFragment();
                         title = "Test Your Action";
                         break;
+                    case 2:
+                        dialog.exitDialog(getContext());
+                        break;
                 }
                 activity.switchFragment(newFragment, title, "");
             }
@@ -145,22 +151,9 @@ public class HomeFragment extends Fragment {
         menuElementList.add(myMenu);
         myMenu = new MenuElement("Train", R.mipmap.ic_play_circle_filled_black_24dp);
         menuElementList.add(myMenu);
+        myMenu = new MenuElement("Exit", R.mipmap.ic_exit_to_app_black_24dp);
+        menuElementList.add(myMenu);
     }
-
-    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case DialogInterface.BUTTON_POSITIVE:
-                    activity.finish();
-                    break;
-
-                case DialogInterface.BUTTON_NEGATIVE:
-                    dialog.cancel();
-                    break;
-            }
-        }
-    };
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.example.sonic.whatdoyoudo.commons.Dialog;
 import com.example.sonic.whatdoyoudo.fragment.HomeFragment;
 import com.example.sonic.whatdoyoudo.fragment.TestFragment;
 import com.example.sonic.whatdoyoudo.fragment.TrainFragment;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     Toolbar toolbar;
 
     Drawer mainDrawer;
+    Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity
         setLayout(savedInstanceState);
         addNavigationDrawer();
         intentNavigation();
+        dialog = new Dialog(this);
     }
 
     public void setLayout(Bundle savedInstanceState) {
@@ -82,7 +85,6 @@ public class MainActivity extends AppCompatActivity
         PrimaryDrawerItem home = new PrimaryDrawerItem().withIdentifier(1).withName("Home");
         PrimaryDrawerItem train = new PrimaryDrawerItem().withIdentifier(2).withName("Train");
         PrimaryDrawerItem test = new PrimaryDrawerItem().withIdentifier(3).withName("Test");
-        PrimaryDrawerItem exit = new PrimaryDrawerItem().withIdentifier(4).withName("Exit");
         AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.color.colorPrimaryDark)
@@ -110,8 +112,7 @@ public class MainActivity extends AppCompatActivity
                 .addDrawerItems(
                         home,
                         train,
-                        test,
-                        exit
+                        test
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity
                             case 3://TestFragment
                                 fragmentClass = TestFragment.class;
                                 break;
-                            case 4://home
+                            case 4://exit
                                 break;
                             case 5://home
                                 break;
