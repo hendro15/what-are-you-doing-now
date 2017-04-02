@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.example.sonic.whatdoyoudo.R;
 
-import butterknife.BindView;
+import butterknife.Bind;
 import butterknife.ButterKnife;
 
 /**
@@ -67,19 +67,19 @@ public class TrainFragment extends Fragment {
         }
     }
 
-    @BindView(R.id.tv_xValue)
+    @Bind(R.id.tv_xValue)
     TextView tv_xValue;
-    @BindView(R.id.tv_yValue)
+    @Bind(R.id.tv_yValue)
     TextView tv_yValue;
-    @BindView(R.id.tv_zValue)
+    @Bind(R.id.tv_zValue)
     TextView tv_zValue;
-    @BindView(R.id.spinner)
+    @Bind(R.id.spinner)
     Spinner spinner;
-    @BindView(R.id.tv_trainStatus)
+    @Bind(R.id.tv_trainStatus)
     TextView status;
-    @BindView(R.id.btnStart)
+    @Bind(R.id.btnStart)
     Button btn_start;
-    @BindView(R.id.btnStop)
+    @Bind(R.id.btnStop)
     Button btn_stop;
 
 
@@ -89,7 +89,7 @@ public class TrainFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_train, container, false);
         ButterKnife.bind(this, v);
-        getActivity().setTitle("TrainFragment Your Smart Machine");
+        getActivity().setTitle("Train Smart Machine");
         return v;
     }
 

@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.example.sonic.whatdoyoudo.R;
 
-import butterknife.BindView;
+import butterknife.Bind;
 import butterknife.ButterKnife;
 
 /**
@@ -66,17 +66,17 @@ public class TestFragment extends Fragment {
         }
     }
 
-    @BindView(R.id.tv_xValue)
+    @Bind(R.id.tv_xValue)
     TextView tv_xValue;
-    @BindView(R.id.tv_yValue)
+    @Bind(R.id.tv_yValue)
     TextView tv_yValue;
-    @BindView(R.id.tv_zValue)
+    @Bind(R.id.tv_zValue)
     TextView tv_zValue;
-    @BindView(R.id.tv_testStatus)
+    @Bind(R.id.tv_testStatus)
     TextView status;
-    @BindView(R.id.btnStart)
+    @Bind(R.id.btnStart)
     Button btn_start;
-    @BindView(R.id.btnStop)
+    @Bind(R.id.btnStop)
     Button btn_stop;
 
     @Override
@@ -85,7 +85,7 @@ public class TestFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_test, container, false);
         ButterKnife.bind(this, v);
-        getActivity().setTitle("TestFragment Action");
+        getActivity().setTitle("Test Your Action");
         return v;
     }
     // TODO: Rename method, update argument and hook method into UI event

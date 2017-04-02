@@ -1,10 +1,14 @@
 package com.example.sonic.whatdoyoudo;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,69 +18,202 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
+import com.example.sonic.whatdoyoudo.fragment.HomeFragment;
 import com.example.sonic.whatdoyoudo.fragment.TestFragment;
 import com.example.sonic.whatdoyoudo.fragment.TrainFragment;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
-import butterknife.BindView;
+import junit.framework.Test;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
+        implements HomeFragment.OnFragmentInteractionListener,
         TrainFragment.OnFragmentInteractionListener,
-        TestFragment.OnFragmentInteractionListener{
+        TestFragment.OnFragmentInteractionListener {
 
-    AlertDialog.Builder builder;
+    @Bind(R.id.drawer_layout)
+    DrawerLayout drawer_layout;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+
+    Drawer mainDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                builder = new AlertDialog.Builder(view.getContext());
-                builder.setMessage("Are you sure want to exit?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
-            }
-        });
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        setLayout(savedInstanceState);
+        addNavigationDrawer();
+        intentNavigation();
     }
 
-    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case DialogInterface.BUTTON_POSITIVE:
-                    MainActivity.this.finish();
-                    break;
+    public void setLayout(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            Fragment fragment = null;
+            Class fragmentClass = HomeFragment.class;
+            try {
+                fragment = (Fragment) fragmentClass.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-                case DialogInterface.BUTTON_NEGATIVE:
-                    dialog.cancel();
-                    break;
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.flContent, fragment).addToBackStack("satu").commit();
+        }
+    }
+
+    public void addNavigationDrawer() {
+        Log.i("debugs", "MainAcitivity addNavigationDrawer");
+        PrimaryDrawerItem home = new PrimaryDrawerItem().withIdentifier(1).withName("Home");
+        PrimaryDrawerItem train = new PrimaryDrawerItem().withIdentifier(2).withName("Train");
+        PrimaryDrawerItem test = new PrimaryDrawerItem().withIdentifier(3).withName("Test");
+        PrimaryDrawerItem exit = new PrimaryDrawerItem().withIdentifier(4).withName("Exit");
+        AccountHeader headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withHeaderBackground(R.color.colorPrimaryDark)
+                .addProfiles(
+                        new ProfileDrawerItem().withName("Sonic Adventure").withEmail("sonic@softart.com").withIcon(getResources().getDrawable(R.mipmap.ic_launcher)).withSelectedTextColor(this.getResources().getColor(R.color.md_white_1000))
+                )
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
+                        return false;
+                    }
+                })
+                .build();
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer_layout.addDrawerListener(toggle);
+        toggle.syncState();
+        mainDrawer = new DrawerBuilder()
+                .withActivity(this)
+                .withToolbar(toolbar)
+                .withAccountHeader(headerResult)
+                .withActionBarDrawerToggle(true)
+                .withActionBarDrawerToggle(toggle)
+                .withActionBarDrawerToggleAnimated(true)
+                .addDrawerItems(
+                        home,
+                        train,
+                        test,
+                        exit
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        Fragment fragment = null;
+                        Class fragmentClass = HomeFragment.class;
+                        Log.i("debugs", "MainActivity onItemClick position : " + position);
+                        switch (position) {
+                            case 1://HomeFragment
+                                fragmentClass = HomeFragment.class;
+                                break;
+                            case 2://TrainFragment
+                                fragmentClass = TrainFragment.class;
+                                break;
+                            case 3://TestFragment
+                                fragmentClass = TestFragment.class;
+                                break;
+                            case 4://home
+                                break;
+                            case 5://home
+                                break;
+                            case 6://home
+                                break;
+                            case 7://home
+                                break;
+                            case 8://home
+                                break;
+                            case 9://home
+                                break;
+                        }
+                        try {
+                            fragment = (Fragment) fragmentClass.newInstance();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).addToBackStack("satu").commit();
+                        mainDrawer.closeDrawer();
+                        return true;
+                    }
+                })
+                .build();
+    }
+
+    public void intentNavigation() {
+        Intent intent = getIntent();
+        String goto_item = intent.getStringExtra("goto_item");
+        if (goto_item != null && !goto_item.isEmpty()) {
+            if (goto_item != null && goto_item.equals("Home")) {
+                Fragment fragment = null;
+                Class fragmentClass = HomeFragment.class;
+                try {
+                    fragment = (Fragment) fragmentClass.newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.flContent, fragment).addToBackStack("satu").commit();
+            } else if (goto_item != null && goto_item.equals("Train")) {
+                Fragment fragment = null;
+                Class fragmentClass = TrainFragment.class;
+                try {
+                    fragment = (Fragment) fragmentClass.newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.flContent, fragment).addToBackStack("satu").commit();
+            } else if (goto_item != null && goto_item.equals("Test")) {
+                Fragment fragment = null;
+                Class fragmentClass = TestFragment.class;
+                try {
+                    fragment = (Fragment) fragmentClass.newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.flContent, fragment).addToBackStack("satu").commit();
             }
         }
-    };
-
+    }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            drawer_layout.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            try {
+                int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+                if (backStackEntryCount == 1) {
+                    Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+                    homeIntent.addCategory(Intent.CATEGORY_HOME);
+                    homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(homeIntent);
+                } else {
+                    super.onBackPressed();
+                    getFragmentManager().popBackStack();
+                    ;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -102,25 +239,17 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_train) {
-
-        } else if (id == R.id.nav_test) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    public void switchFragment(Fragment fragment, String title, String subTitle) {
+        setTitle(title);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.flContent, fragment)
+                .addToBackStack("satu")
+                .commit();
     }
 }
