@@ -5,5 +5,5 @@ package com.example.sonic.whatdoyoudo.naive;
  */
 
 public class Naive {
-    
+
 }

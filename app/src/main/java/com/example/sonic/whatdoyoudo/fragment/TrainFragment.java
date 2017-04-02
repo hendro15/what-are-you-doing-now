@@ -1,17 +1,26 @@
 package com.example.sonic.whatdoyoudo.fragment;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.sonic.whatdoyoudo.R;
+import com.example.sonic.whatdoyoudo.model.Axis;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -24,7 +33,7 @@ import butterknife.ButterKnife;
  * Use the {@link TrainFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TrainFragment extends Fragment {
+public class TrainFragment extends Fragment implements SensorEventListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -82,6 +91,11 @@ public class TrainFragment extends Fragment {
     @Bind(R.id.btnStop)
     Button btn_stop;
 
+    ArrayAdapter<String> adapter;
+    List<String> list;
+    Axis axis;
+    SensorManager sensorManager;
+    Sensor accelero;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -90,7 +104,38 @@ public class TrainFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_train, container, false);
         ButterKnife.bind(this, v);
         getActivity().setTitle("Train Smart Machine");
+        spinnerElement();
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        accelero = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        onClick();
         return v;
+    }
+
+    private void spinnerElement(){
+        list = new ArrayList<String>();
+        list.add("Jogging");
+        list.add("Walking");
+        list.add("Standing");
+        list.add("Sitting");
+        adapter = new ArrayAdapter<String>(getContext(),
+                R.layout.support_simple_spinner_dropdown_item, list);
+        spinner.setAdapter(adapter);
+    }
+
+    public void onClick(){
+        btn_start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                registerListener();
+            }
+        });
+
+        btn_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unregisterSensor();
+            }
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -130,5 +175,26 @@ public class TrainFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        tv_xValue.setText(String.valueOf(event.values[0]));
+        tv_yValue.setText(String.valueOf(event.values[1]));
+        tv_zValue.setText(String.valueOf(event.values[2]));
+        axis = new Axis(event.values[0], event.values[1], event.values[1]);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    private void registerListener(){
+        sensorManager.registerListener(this, accelero, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    private void unregisterSensor(){
+        sensorManager.unregisterListener(this, accelero);
     }
 }
