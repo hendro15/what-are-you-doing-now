@@ -6,19 +6,29 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.sonic.whatdoyoudo.R;
 import com.example.sonic.whatdoyoudo.model.Axis;
+import com.example.sonic.whatdoyoudo.model.CalculateAxis;
+import com.example.sonic.whatdoyoudo.utils.Dataset;
+import com.example.sonic.whatdoyoudo.utils.Permissions;
+import com.opencsv.CSVWriter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +43,7 @@ import butterknife.ButterKnife;
  * Use the {@link TrainFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TrainFragment extends Fragment implements SensorEventListener{
+public class TrainFragment extends Fragment implements SensorEventListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -90,28 +100,46 @@ public class TrainFragment extends Fragment implements SensorEventListener{
     Button btn_start;
     @Bind(R.id.btnStop)
     Button btn_stop;
+    @Bind(R.id.cb_newDataset)
+    CheckBox cbNewDataset;
+    @Bind(R.id.cb_oldDataset)
+    CheckBox cbOldDataset;
 
     ArrayAdapter<String> adapter;
     List<String> list;
     Axis axis;
     SensorManager sensorManager;
     Sensor accelero;
+    Permissions permissions = new Permissions();
+    CalculateAxis calculateAxis = new CalculateAxis();
+    Dataset dataset = new Dataset();
+
+    private int window = 20;
+    private String category;
+    private List<Float> data;
+    private File path;
+    private boolean newStatus;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_train, container, false);
+        if (shouldAskPermissions()) {
+            permissions.verifyStoragePermissions(this.getActivity());
+        }
+        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         ButterKnife.bind(this, v);
         getActivity().setTitle("Train Smart Machine");
         spinnerElement();
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         accelero = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         onClick();
+        onCheckedChange();
         return v;
     }
 
-    private void spinnerElement(){
+    private void spinnerElement() {
         list = new ArrayList<String>();
         list.add("Jogging");
         list.add("Walking");
@@ -122,17 +150,25 @@ public class TrainFragment extends Fragment implements SensorEventListener{
         spinner.setAdapter(adapter);
     }
 
-    public void onClick(){
+    public void onClick() {
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                registerListener();
+                if (!cbNewDataset.isChecked() && !cbOldDataset.isChecked()) {
+                    Toast.makeText(getContext(), "Checkbox belum dipilih", Toast.LENGTH_SHORT).show();
+                } else {
+                    category = spinner.getSelectedItem().toString();
+                    status.setText("Record training...");
+                    registerListener();
+                }
             }
         });
 
         btn_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                data = calculateAxis.calculate(window, axis.getxList(), axis.getyList(), axis.getzList());
+                status.setText(dataset.createDataset(createData(), newStatus));
                 unregisterSensor();
             }
         });
@@ -190,11 +226,65 @@ public class TrainFragment extends Fragment implements SensorEventListener{
 
     }
 
-    private void registerListener(){
+    private void registerListener() {
         sensorManager.registerListener(this, accelero, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    private void unregisterSensor(){
+    private void unregisterSensor() {
         sensorManager.unregisterListener(this, accelero);
     }
+
+    private String[] createData() {
+        String[] entries = new String[]{String.valueOf(data.get(0)),
+                String.valueOf(data.get(1)),
+                String.valueOf(data.get(2)),
+                String.valueOf(data.get(3)),
+                String.valueOf(data.get(4)),
+                String.valueOf(data.get(5)),
+                String.valueOf(data.get(6)),
+                String.valueOf(data.get(7)),
+                String.valueOf(data.get(8)),
+                String.valueOf(data.get(9)),
+                String.valueOf(data.get(10)),
+                String.valueOf(data.get(11)),
+                category};
+
+        return entries;
+    }
+
+    protected boolean shouldAskPermissions() {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
+    private void onCheckedChange() {
+        cbNewDataset.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    newStatus = true;
+                    cbOldDataset.setChecked(false);
+                }
+            }
+        });
+        cbOldDataset.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    newStatus = false;
+                    cbNewDataset.setChecked(false);
+                }
+            }
+        });
+//        switch (view.getId()) {
+//            case R.id.cb_newDataset:
+//                newStatus = true;
+//                cbOldDataset.setChecked(false);
+//                break;
+//            case R.id.cb_oldDataset:
+//                newStatus = false;
+//                cbNewDataset.setChecked(true);
+//                break;
+//        }
+    }
 }
+

@@ -8,14 +8,16 @@ import java.util.List;
  * Created by sonic on 02/04/2017.
  */
 
-public class Dataset {
+public class CalculateAxis {
 
-    public String calculate(int window, List<Float> xList, List<Float> yList, List<Float> zList, String cat) {
+    List<Float> data;
+
+    public List<Float> calculate(int window, List<Float> xList, List<Float> yList, List<Float> zList) {
+        data = new ArrayList<Float>();
         float sumX = 0, sumY = 0, sumZ = 0;
         float stdX = 0, stdY = 0, stdZ = 0;
         float meanX, meanY, meanZ;
         float stdDevX, stdDevY, stdDevZ;
-        float minX, minY, minZ, maxX, maxY, maxZ;
 
         for (int i = 0; i < xList.size(); i++) {
             sumX += xList.get(i);
@@ -37,11 +39,18 @@ public class Dataset {
         stdDevY = (float) Math.sqrt(stdY / (window - 1));
         stdDevZ = (float) Math.sqrt(stdZ / (window - 1));
 
-        String data = String.valueOf(meanX) + ";" + String.valueOf(meanY) + ";" + String.valueOf(meanZ) + ';'
-                + String.valueOf(stdDevX) + ';' + String.valueOf(stdDevY) + ';' + String.valueOf(stdDevZ)
-                + ';' + String.valueOf(Collections.max(xList)) + ';' + String.valueOf(Collections.max(yList)) + ';' + String.valueOf(Collections.max(zList)) + ';'
-                + String.valueOf(Collections.min(xList)) + ';' + String.valueOf(Collections.min(yList)) + ';' + String.valueOf(Collections.min(zList)) + ';'
-                + cat;
+        data.add(meanX);
+        data.add(meanY);
+        data.add(meanZ);
+        data.add(stdDevX);
+        data.add(stdDevY);
+        data.add(stdDevZ);
+        data.add(Collections.max(xList));
+        data.add(Collections.max(yList));
+        data.add(Collections.max(zList));
+        data.add(Collections.min(xList));
+        data.add(Collections.min(yList));
+        data.add(Collections.min(zList));
 
         return data;
     }

@@ -1,8 +1,14 @@
 package com.example.sonic.whatdoyoudo.fragment;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +17,17 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.sonic.whatdoyoudo.R;
+import com.example.sonic.whatdoyoudo.classifier.Bayes;
+import com.example.sonic.whatdoyoudo.model.Axis;
+import com.example.sonic.whatdoyoudo.model.CalculateAxis;
+import com.example.sonic.whatdoyoudo.utils.Permissions;
+
+import java.io.File;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import weka.core.converters.ConverterUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,7 +37,7 @@ import butterknife.ButterKnife;
  * Use the {@link TestFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TestFragment extends Fragment {
+public class TestFragment extends Fragment implements SensorEventListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -79,6 +93,18 @@ public class TestFragment extends Fragment {
     @Bind(R.id.btnStop)
     Button btn_stop;
 
+    private Permissions permissions = new Permissions();
+    private SensorManager sensorManager;
+    private Sensor accelero;
+    private Axis axis;
+    private Bayes bayes;
+    private CalculateAxis calculateAxis = new CalculateAxis();
+    private int window = 20;
+    private List<Float> data;
+    private ConverterUtils.DataSource source;
+    private Environment environment;
+    private String path;
+    private String stringDataset;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -86,8 +112,18 @@ public class TestFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_test, container, false);
         ButterKnife.bind(this, v);
         getActivity().setTitle("Test Your Action");
+        if (shouldAskPermissions()) {
+            permissions.verifyStoragePermissions(this.getActivity());
+        }
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        accelero = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        bayes = new Bayes();
+        path = environment.getExternalStorageDirectory().getPath();
+        stringDataset = path + File.separator + "calculateAxis.csv";
+        onClick();
         return v;
     }
+
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -112,6 +148,44 @@ public class TestFragment extends Fragment {
         mListener = null;
     }
 
+    private void onClick() {
+        btn_start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                registerSensor();
+                status.setText("Start recording...");
+            }
+        });
+
+        btn_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    source = new ConverterUtils.DataSource(stringDataset);
+                    data = calculateAxis.calculate(window, axis.getxList(), axis.getyList(), axis.getzList());
+                    bayes.fileToInstances(source); //isi data train
+                    status.setText("You are " + bayes.bayes(val()) + " now");
+                }catch (Exception e){
+                    status.setText(e.toString());
+                }
+                unregisterSensor();
+            }
+        });
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        tv_xValue.setText(String.valueOf(event.values[0]));
+        tv_yValue.setText(String.valueOf(event.values[1]));
+        tv_zValue.setText(String.valueOf(event.values[2]));
+        axis = new Axis(event.values[0], event.values[1], event.values[2]);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -125,5 +199,35 @@ public class TestFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    protected boolean shouldAskPermissions() {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
+    protected void registerSensor() {
+        sensorManager.registerListener(this, accelero, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    protected void unregisterSensor() {
+        sensorManager.unregisterListener(this);
+    }
+
+    private double[] val() {
+        double[] test = new double[]{
+                data.get(0),
+                data.get(1),
+                data.get(2),
+                data.get(3),
+                data.get(4),
+                data.get(5),
+                data.get(6),
+                data.get(7),
+                data.get(8),
+                data.get(9),
+                data.get(10),
+                data.get(11)
+        };
+        return test;
     }
 }
