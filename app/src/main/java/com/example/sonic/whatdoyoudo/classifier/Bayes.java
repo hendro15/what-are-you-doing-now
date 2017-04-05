@@ -23,10 +23,10 @@ public class Bayes {
     private double label;
     private Instance instance;
 
-    public Instances fileToInstances(ConverterUtils.DataSource source) {
-        Instances dataset = null;
+    public Instances fileToInstances(Instances source) {
+        Instances dataset = source;
         try {
-            dataset = source.getDataSet();
+//            dataset = source.getDataSet();
 
             if (dataset.classIndex() == -1) {
                 dataset.setClassIndex(dataset.numAttributes() - 1);

@@ -126,7 +126,7 @@ public class TrainFragment extends Fragment implements SensorEventListener {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_train, container, false);
         if (shouldAskPermissions()) {
-            permissions.verifyStoragePermissions(this.getActivity());
+            permissions.verifyStoragePermissionsWrite(this.getActivity());
         }
         path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         ButterKnife.bind(this, v);
@@ -275,16 +275,6 @@ public class TrainFragment extends Fragment implements SensorEventListener {
                 }
             }
         });
-//        switch (view.getId()) {
-//            case R.id.cb_newDataset:
-//                newStatus = true;
-//                cbOldDataset.setChecked(false);
-//                break;
-//            case R.id.cb_oldDataset:
-//                newStatus = false;
-//                cbNewDataset.setChecked(true);
-//                break;
-//        }
     }
 }
 

@@ -1,6 +1,7 @@
 package com.example.sonic.whatdoyoudo.fragment;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,7 +10,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,10 +104,11 @@ public class TestFragment extends Fragment implements SensorEventListener {
     private CalculateAxis calculateAxis = new CalculateAxis();
     private int window = 20;
     private List<Float> data;
-    private ConverterUtils.DataSource source;
     private Environment environment;
     private String path;
     private String stringDataset;
+    AssetManager assetManager;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -113,13 +117,15 @@ public class TestFragment extends Fragment implements SensorEventListener {
         ButterKnife.bind(this, v);
         getActivity().setTitle("Test Your Action");
         if (shouldAskPermissions()) {
-            permissions.verifyStoragePermissions(this.getActivity());
+            permissions.verifyStoragePermissionsWrite(getActivity());
+            permissions.verifyStoragePermissionsRead(getActivity());
         }
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         accelero = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         bayes = new Bayes();
         path = environment.getExternalStorageDirectory().getPath();
-        stringDataset = path + File.separator + "calculateAxis.csv";
+        stringDataset = path + File.separator + "dataset.csv";
+        assetManager = getContext().getAssets();
         onClick();
         return v;
     }
@@ -161,12 +167,14 @@ public class TestFragment extends Fragment implements SensorEventListener {
             @Override
             public void onClick(View v) {
                 try{
-                    source = new ConverterUtils.DataSource(stringDataset);
+//                    source = new ConverterUtils.DataSource("/sdcard/dataset.csv");
+                    File file = new File("dataset.csv");
+                    Log.i("err", String.valueOf(file.exists()));
                     data = calculateAxis.calculate(window, axis.getxList(), axis.getyList(), axis.getzList());
-                    bayes.fileToInstances(source); //isi data train
+                    bayes.fileToInstances(ConverterUtils.DataSource.read(assetManager.open("sdcard/dataset.csv"))); //isi data train
                     status.setText("You are " + bayes.bayes(val()) + " now");
                 }catch (Exception e){
-                    status.setText(e.toString());
+                    status.setText("Dataset not found at : " + e.getMessage().toString());
                 }
                 unregisterSensor();
             }

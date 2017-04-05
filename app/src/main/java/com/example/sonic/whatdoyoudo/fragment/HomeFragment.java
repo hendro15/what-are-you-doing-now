@@ -147,9 +147,9 @@ public class HomeFragment extends Fragment {
     }
 
     public void getData() {
-        MenuElement myMenu = new MenuElement("Test", R.mipmap.ic_fitness_center_black_24dp);
+        MenuElement myMenu = new MenuElement("Train", R.mipmap.ic_fitness_center_black_24dp);
         menuElementList.add(myMenu);
-        myMenu = new MenuElement("Train", R.mipmap.ic_play_circle_filled_black_24dp);
+        myMenu = new MenuElement("Test", R.mipmap.ic_play_circle_filled_black_24dp);
         menuElementList.add(myMenu);
         myMenu = new MenuElement("Exit", R.mipmap.ic_exit_to_app_black_24dp);
         menuElementList.add(myMenu);
